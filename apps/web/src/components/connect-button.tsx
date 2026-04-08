@@ -31,9 +31,8 @@ export function ConnectButton() {
         if (!connected) {
           return (
             <button type="button" className={styles.pillButton} onClick={openConnectModal}>
-              <FlameIcon />
               <span className={styles.primary}>Connect</span>
-              <span className={styles.secondary}>wallet</span>
+              <span className={styles.secondary}>Wallet</span>
             </button>
           );
         }
@@ -41,30 +40,19 @@ export function ConnectButton() {
         if (chain.unsupported) {
           return (
             <button type="button" className={styles.pillButton} onClick={openChainModal}>
-              <FlameIcon />
               <span className={styles.primary}>Wrong</span>
-              <span className={styles.secondary}>network</span>
+              <span className={styles.secondary}>Network</span>
             </button>
           );
         }
 
         return (
           <button type="button" className={styles.pillButton} onClick={openAccountModal}>
-            <FlameIcon />
             <span className={styles.primary}>{account.displayName}</span>
             <span className={styles.secondary}>connected</span>
           </button>
         );
       }}
     </RainbowKitConnectButton.Custom>
-  );
-}
-
-function FlameIcon() {
-  return (
-    <svg viewBox="0 0 24 24" aria-hidden="true" className={styles.flameIcon}>
-      <path d="M12 2C9 7 6 9 6 13a6 6 0 0 0 12 0c0-4-3-6-6-11z" fill="#f5c842" stroke="none" />
-      <path d="M12 8c-1 3-3 4-3 6a3 3 0 0 0 6 0c0-2-2-3-3-6z" fill="#f97316" stroke="none" />
-    </svg>
   );
 }

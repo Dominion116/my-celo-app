@@ -263,16 +263,6 @@
   color: rgba(245, 200, 66, 0.55);
 }
 
-.walletDock {
-  position: absolute;
-  top: 16px;
-  right: 16px;
-  z-index: 22;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
 .swipeIndicator {
   position: absolute;
   bottom: calc(var(--nav-h) + 10px);
@@ -527,6 +517,12 @@
   align-items: center;
   gap: 16px;
   margin-bottom: 20px;
+}
+
+.accountConnectButton {
+  display: flex;
+  justify-content: flex-start;
+  margin-bottom: 16px;
 }
 
 .avatar {

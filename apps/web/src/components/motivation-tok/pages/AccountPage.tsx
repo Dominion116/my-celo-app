@@ -1,4 +1,5 @@
 import styles from "../styles.module.css";
+import { ConnectButton } from "@/components/connect-button";
 
 type AccountPageProps = {
   streak: number;
@@ -17,6 +18,10 @@ export function AccountPage({ streak, bestStreak, address, savedCount }: Account
             <p className={styles.accountName}>Motivation Tok</p>
             <p className={styles.accountAddress}>{address}</p>
           </div>
+        </div>
+
+        <div className={styles.accountConnectButton}>
+          <ConnectButton />
         </div>
 
         <div className={styles.streakCard}>

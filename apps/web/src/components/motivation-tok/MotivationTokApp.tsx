@@ -10,7 +10,6 @@ import { QUOTES, type TabKey } from "./data";
 import { SearchPage } from "./pages/SearchPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { AccountPage } from "./pages/AccountPage";
-import { ConnectButton } from "@/components/connect-button";
 import styles from "./styles.module.css";
 import { useMotivationTok } from "@/hooks/useMotivationTok";
 import { truncateAddress } from "@/lib/app-utils";
@@ -117,10 +116,6 @@ export function MotivationTokApp() {
 
   return (
     <div className={`${styles.app} ${dmSans.variable} ${dmSerif.variable}`}>
-      <div className={styles.walletDock}>
-        <ConnectButton />
-      </div>
-
       <div
         className={styles.feed}
         onTouchStart={(event) => {
