@@ -1,7 +1,6 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { Menu, ExternalLink } from "lucide-react"
 
@@ -57,7 +56,7 @@ export function Navbar() {
                 ))}
                 <div className="mt-6 pt-6 border-t">
                   <Button asChild className="w-full">
-                    <WalletConnectButton />
+                    <ConnectButton />
                   </Button>
                 </div>
               </nav>
@@ -93,7 +92,7 @@ export function Navbar() {
           ))}
           
           <div className="flex items-center gap-3">
-            <WalletConnectButton />
+            <ConnectButton />
           </div>
         </nav>
       </div>
