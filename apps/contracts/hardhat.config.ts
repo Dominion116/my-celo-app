@@ -48,7 +48,7 @@ const config: HardhatUserConfig = {
         network: "celo",
         chainId: 42220,
         urls: {
-          apiURL: "https://api.etherscan.io/v2/api",
+          apiURL: "https://api.celoscan.io/api",
           browserURL: "https://celoscan.io",
         },
       },
@@ -56,7 +56,7 @@ const config: HardhatUserConfig = {
         network: "celo-sepolia",
         chainId: 11142220,
         urls: {
-          apiURL: "https://api.etherscan.io/v2/api",
+          apiURL: "https://api-sepolia.celoscan.io/api",
           browserURL: "https://sepolia.celoscan.io/",
         },
       },
