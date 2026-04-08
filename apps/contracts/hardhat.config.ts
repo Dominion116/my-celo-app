@@ -1,5 +1,6 @@
 import type { HardhatUserConfig } from "hardhat/config";
 import "@nomicfoundation/hardhat-toolbox-viem";
+import "dotenv/config";
 
 const privateKey = process.env.PRIVATE_KEY?.trim();
 const normalizedPrivateKey = privateKey
