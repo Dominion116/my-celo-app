@@ -2,6 +2,7 @@
 
 import { useCallback, useState } from "react";
 import { useAccount, usePublicClient, useReadContract, useWalletClient } from "wagmi";
+import { encodeFunctionData } from "viem";
 import {
   CELO_SEPOLIA_CHAIN_ID,
   motivationTokAbi,
@@ -68,46 +69,53 @@ export function useMotivationTok(currentIndex: number) {
       }
 
       const actionQuoteId = quoteIdFromIndex(indexOverride ?? currentIndex);
-      const writeContract: any = walletClient.writeContract;
+      const sendTransaction: any = walletClient.sendTransaction;
       setIsPending(true);
 
       try {
         let hash: `0x${string}`;
 
         if (type === "visit") {
-          hash = await writeContract({
-            address: motivationTokAddress,
-            abi: motivationTokAbi,
-            functionName: "recordVisit",
-          });
+          hash = await sendTransaction({
+            to: motivationTokAddress,
+            data: encodeFunctionData({ abi: motivationTokAbi, functionName: "recordVisit" }),
+          } as any);
         } else if (type === "like") {
-          hash = await writeContract({
-            address: motivationTokAddress,
-            abi: motivationTokAbi,
-            functionName: "toggleLike",
-            args: [actionQuoteId] as any,
-          });
+          hash = await sendTransaction({
+            to: motivationTokAddress,
+            data: encodeFunctionData({
+              abi: motivationTokAbi,
+              functionName: "toggleLike",
+              args: [actionQuoteId],
+            }),
+          } as any);
         } else if (type === "dislike") {
-          hash = await writeContract({
-            address: motivationTokAddress,
-            abi: motivationTokAbi,
-            functionName: "toggleDislike",
-            args: [actionQuoteId] as any,
-          });
+          hash = await sendTransaction({
+            to: motivationTokAddress,
+            data: encodeFunctionData({
+              abi: motivationTokAbi,
+              functionName: "toggleDislike",
+              args: [actionQuoteId],
+            }),
+          } as any);
         } else if (type === "save") {
-          hash = await writeContract({
-            address: motivationTokAddress,
-            abi: motivationTokAbi,
-            functionName: "toggleSave",
-            args: [actionQuoteId] as any,
-          });
+          hash = await sendTransaction({
+            to: motivationTokAddress,
+            data: encodeFunctionData({
+              abi: motivationTokAbi,
+              functionName: "toggleSave",
+              args: [actionQuoteId],
+            }),
+          } as any);
         } else {
-          hash = await writeContract({
-            address: motivationTokAddress,
-            abi: motivationTokAbi,
-            functionName: "recordShare",
-            args: [actionQuoteId] as any,
-          });
+          hash = await sendTransaction({
+            to: motivationTokAddress,
+            data: encodeFunctionData({
+              abi: motivationTokAbi,
+              functionName: "recordShare",
+              args: [actionQuoteId],
+            }),
+          } as any);
         }
 
         await publicClient.waitForTransactionReceipt({ hash });
