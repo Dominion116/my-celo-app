@@ -13,7 +13,13 @@ export function AccountPage({ streak, bestStreak, address, savedCount }: Account
     <section className={styles.page}>
       <div className={styles.accountHero}>
         <div className={styles.accountTop}>
-          <div className={styles.avatar}>MT</div>
+          <div className={styles.avatar}>
+            <img
+              className={styles.avatarImage}
+              src="https://i.pravatar.cc/128?img=65"
+              alt="Motivation Tok avatar"
+            />
+          </div>
           <div>
             <p className={styles.accountName}>Motivation Tok</p>
             <p className={styles.accountAddress}>{address}</p>

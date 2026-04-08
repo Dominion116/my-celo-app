@@ -8,6 +8,7 @@ export type Quote = {
   categoryColor: string;
   background: string;
   avatar: string;
+  avatarImage: string;
   avatarBackground: string;
   likes: number;
   dislikes: number;
@@ -30,6 +31,7 @@ export const QUOTES: Quote[] = [
     categoryColor: "#f87171",
     background: "linear-gradient(155deg,#1a0533 0%,#0d1b3e 55%,#080808 100%)",
     avatar: "MM",
+    avatarImage: "https://i.pravatar.cc/80?img=12",
     avatarBackground: "linear-gradient(135deg,#7c3aed,#4f46e5)",
     likes: 2400,
     dislikes: 180,
@@ -43,6 +45,7 @@ export const QUOTES: Quote[] = [
     categoryColor: "#34d399",
     background: "linear-gradient(155deg,#0a1f0f 0%,#0d2e1a 55%,#080808 100%)",
     avatar: "ZZ",
+    avatarImage: "https://i.pravatar.cc/80?img=15",
     avatarBackground: "linear-gradient(135deg,#059669,#047857)",
     likes: 3100,
     dislikes: 92,
@@ -56,6 +59,7 @@ export const QUOTES: Quote[] = [
     categoryColor: "#60a5fa",
     background: "linear-gradient(155deg,#0a1020 0%,#0f1e3a 55%,#080808 100%)",
     avatar: "NM",
+    avatarImage: "https://i.pravatar.cc/80?img=8",
     avatarBackground: "linear-gradient(135deg,#2563eb,#1d4ed8)",
     likes: 5800,
     dislikes: 140,
@@ -69,6 +73,7 @@ export const QUOTES: Quote[] = [
     categoryColor: "#e879f9",
     background: "linear-gradient(155deg,#1a0520 0%,#2d0b3a 55%,#080808 100%)",
     avatar: "SJ",
+    avatarImage: "https://i.pravatar.cc/80?img=55",
     avatarBackground: "linear-gradient(135deg,#9333ea,#7c3aed)",
     likes: 7200,
     dislikes: 320,
@@ -82,6 +87,7 @@ export const QUOTES: Quote[] = [
     categoryColor: "#fbbf24",
     background: "linear-gradient(155deg,#1a1000 0%,#2d1f00 55%,#080808 100%)",
     avatar: "AE",
+    avatarImage: "https://i.pravatar.cc/80?img=60",
     avatarBackground: "linear-gradient(135deg,#d97706,#b45309)",
     likes: 4600,
     dislikes: 88,
@@ -95,6 +101,7 @@ export const QUOTES: Quote[] = [
     categoryColor: "#a78bfa",
     background: "linear-gradient(155deg,#0f0a1f 0%,#1a1030 55%,#080808 100%)",
     avatar: "RE",
+    avatarImage: "https://i.pravatar.cc/80?img=30",
     avatarBackground: "linear-gradient(135deg,#6d28d9,#5b21b6)",
     likes: 3800,
     dislikes: 110,

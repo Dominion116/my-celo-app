@@ -19,7 +19,7 @@ export function QuoteCard({ quote, state }: QuoteCardProps) {
         <p className={styles.quoteText}>"{quote.text}"</p>
         <div className={styles.quoteAuthor}>
           <div className={styles.authorAvatar} style={{ background: quote.avatarBackground }}>
-            {quote.avatar}
+            <img src={quote.avatarImage} alt={quote.author} className={styles.authorAvatarImage} loading="lazy" />
           </div>
           <div>
             <p className={styles.authorName}>{quote.author}</p>
