@@ -2,9 +2,12 @@ import styles from "../styles.module.css";
 
 type AccountPageProps = {
   streak: number;
+  bestStreak: number;
+  address: string;
+  savedCount: number;
 };
 
-export function AccountPage({ streak }: AccountPageProps) {
+export function AccountPage({ streak, bestStreak, address, savedCount }: AccountPageProps) {
   return (
     <section className={styles.page}>
       <div className={styles.accountHero}>
@@ -12,7 +15,7 @@ export function AccountPage({ streak }: AccountPageProps) {
           <div className={styles.avatar}>MT</div>
           <div>
             <p className={styles.accountName}>Motivation Tok</p>
-            <p className={styles.accountAddress}>0x4f2a...c9d1</p>
+            <p className={styles.accountAddress}>{address}</p>
           </div>
         </div>
 
@@ -24,7 +27,7 @@ export function AccountPage({ streak }: AccountPageProps) {
           </div>
           <div className={styles.streakBest}>
             <p className={styles.streakBestLabel}>Best</p>
-            <p className={styles.streakBestValue}>21</p>
+            <p className={styles.streakBestValue}>{bestStreak}</p>
           </div>
         </div>
       </div>
@@ -35,7 +38,7 @@ export function AccountPage({ streak }: AccountPageProps) {
           <p className={styles.statLabel}>Liked</p>
         </div>
         <div className={styles.statTile}>
-          <p className={styles.statValue}>38</p>
+          <p className={styles.statValue}>{savedCount}</p>
           <p className={styles.statLabel}>Saved</p>
         </div>
         <div className={styles.statTile}>

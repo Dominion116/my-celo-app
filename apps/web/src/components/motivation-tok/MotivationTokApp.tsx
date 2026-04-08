@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { DM_Sans, DM_Serif_Display } from "next/font/google";
 import { ActionRail } from "./ActionRail";
 import { BottomNav } from "./BottomNav";
@@ -11,6 +11,8 @@ import { SearchPage } from "./pages/SearchPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { AccountPage } from "./pages/AccountPage";
 import styles from "./styles.module.css";
+import { useMotivationTok } from "@/hooks/useMotivationTok";
+import { truncateAddress } from "@/lib/app-utils";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-ui" });
 const dmSerif = DM_Serif_Display({ subsets: ["latin"], weight: "400", variable: "--font-serif" });
@@ -22,23 +24,37 @@ function formatCount(value: number) {
 export function MotivationTokApp() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabKey>("home");
-  const [liked, setLiked] = useState(false);
-  const [disliked, setDisliked] = useState(false);
-  const [saved, setSaved] = useState(false);
   const [toastMessage, setToastMessage] = useState("");
   const [hintHidden, setHintHidden] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
+  const hasRecordedVisit = useRef(false);
   const touchStartY = useRef(0);
+  const {
+    contractReady,
+    isConnected,
+    address,
+    isPending,
+    likes,
+    dislikes,
+    saves,
+    liked,
+    disliked,
+    saved,
+    streak,
+    bestStreak,
+    savedQuoteIds,
+    writeAction,
+  } = useMotivationTok(currentIndex);
 
   const currentQuote = QUOTES[currentIndex];
 
   const counts = useMemo(
     () => ({
-      likes: formatCount(currentQuote.likes + (liked ? 1 : 0)),
-      dislikes: formatCount(currentQuote.dislikes + (disliked ? 1 : 0)),
-      saves: formatCount(currentQuote.saves + (saved ? 1 : 0)),
+      likes: formatCount(likes),
+      dislikes: formatCount(dislikes),
+      saves: formatCount(saves),
     }),
-    [currentQuote, liked, disliked, saved],
+    [likes, dislikes, saves],
   );
 
   const showToast = (message: string) => {
@@ -52,41 +68,50 @@ export function MotivationTokApp() {
     }
 
     setCurrentIndex(next);
-    setLiked(false);
-    setDisliked(false);
-    setSaved(false);
     setHintHidden(true);
   };
 
-  const onAction = (type: "like" | "dislike" | "save" | "share") => {
-    if (type === "like") {
-      const nextLiked = !liked;
-      setLiked(nextLiked);
-      if (nextLiked) {
-        setDisliked(false);
+  useEffect(() => {
+    if (!contractReady || !isConnected || hasRecordedVisit.current) {
+      return;
+    }
+
+    hasRecordedVisit.current = true;
+    writeAction("visit").catch(() => {
+      showToast("Visit tx skipped");
+    });
+  }, [contractReady, isConnected, writeAction]);
+
+  const onAction = async (type: "like" | "dislike" | "save" | "share") => {
+    if (!contractReady) {
+      showToast("Set NEXT_PUBLIC_MOTIVATIONTOK_CONTRACT in env");
+      return;
+    }
+
+    if (!isConnected) {
+      showToast("Connect wallet to continue");
+      return;
+    }
+
+    try {
+      if (type === "share") {
+        await navigator.clipboard.writeText(currentQuote.text);
       }
-      showToast(nextLiked ? "Liked · txn signed on Celo" : "Like removed");
-      return;
-    }
 
-    if (type === "dislike") {
-      const nextDisliked = !disliked;
-      setDisliked(nextDisliked);
-      if (nextDisliked) {
-        setLiked(false);
+      await writeAction(type);
+
+      if (type === "like") {
+        showToast(liked ? "Like removed" : "Liked · txn confirmed on Celo");
+      } else if (type === "dislike") {
+        showToast(disliked ? "Dislike removed" : "Disliked · txn confirmed on Celo");
+      } else if (type === "save") {
+        showToast(saved ? "Removed from saved" : "Saved · txn confirmed on Celo");
+      } else {
+        showToast("Shared · txn confirmed on Celo");
       }
-      showToast(nextDisliked ? "Disliked · txn signed on Celo" : "Dislike removed");
-      return;
+    } catch {
+      showToast("Transaction rejected or failed");
     }
-
-    if (type === "save") {
-      const nextSaved = !saved;
-      setSaved(nextSaved);
-      showToast(nextSaved ? "Saved · txn signed on Celo" : "Removed from saved");
-      return;
-    }
-
-    showToast("Link copied to clipboard");
   };
 
   return (
@@ -129,8 +154,9 @@ export function MotivationTokApp() {
             disliked={disliked}
             saved={saved}
             onAction={onAction}
+            disabled={isPending}
           />
-          <StreakPill streak={7} />
+          <StreakPill streak={Math.max(streak, 1)} />
           {!hintHidden && (
             <div className={styles.swipeIndicator}>
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -143,8 +169,15 @@ export function MotivationTokApp() {
       )}
 
       {activeTab === "search" && <SearchPage activeCategory={activeCategory} onCategoryChange={setActiveCategory} />}
-      {activeTab === "bookmarks" && <BookmarksPage />}
-      {activeTab === "account" && <AccountPage streak={7} />}
+      {activeTab === "bookmarks" && <BookmarksPage savedQuoteIds={savedQuoteIds} />}
+      {activeTab === "account" && (
+        <AccountPage
+          streak={Math.max(streak, 1)}
+          bestStreak={Math.max(bestStreak, 1)}
+          address={address ? truncateAddress(address) : "Not connected"}
+          savedCount={savedQuoteIds.length}
+        />
+      )}
 
       <div className={`${styles.toast} ${toastMessage ? styles.toastVisible : ""}`}>{toastMessage}</div>
       <BottomNav activeTab={activeTab} onTabChange={setActiveTab} />
