@@ -10,6 +10,9 @@
     "deploy": "hardhat ignition deploy ignition/modules/Lock.ts",
     "deploy:celo-sepolia": "hardhat ignition deploy ignition/modules/Lock.ts --network celo-sepolia",
     "deploy:celo": "hardhat ignition deploy ignition/modules/Lock.ts --network celo",
+    "deploy:motivationtok": "hardhat ignition deploy ignition/modules/MotivationTok.ts",
+    "deploy:motivationtok:celo-sepolia": "hardhat ignition deploy ignition/modules/MotivationTok.ts --network celo-sepolia",
+    "deploy:motivationtok:celo": "hardhat ignition deploy ignition/modules/MotivationTok.ts --network celo",
     "verify": "hardhat verify",
     "clean": "hardhat clean",
     "typechain": "hardhat typechain"
