@@ -1,0 +1,604 @@
+.app {
+  --black: #080808;
+  --surface: #111111;
+  --surface2: #1a1a1a;
+  --border: rgba(255, 255, 255, 0.08);
+  --border2: rgba(255, 255, 255, 0.14);
+  --text: #f0ece4;
+  --muted: rgba(240, 236, 228, 0.45);
+  --hint: rgba(240, 236, 228, 0.22);
+  --gold: #f5c842;
+  --red: #ff4560;
+  --blue: #4f9eff;
+  --nav-h: 76px;
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  max-width: 430px;
+  margin: 0 auto;
+  overflow: hidden;
+  background: var(--black);
+  color: var(--text);
+  font-family: var(--font-ui), sans-serif;
+}
+
+.feed {
+  position: absolute;
+  inset: 0;
+  bottom: var(--nav-h);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.quoteCard {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  transition: transform 0.42s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.42s ease;
+}
+
+.active {
+  transform: translateY(0);
+  opacity: 1;
+  z-index: 3;
+}
+
+.above {
+  transform: translateY(-100%);
+  opacity: 0;
+  z-index: 2;
+}
+
+.below {
+  transform: translateY(100%);
+  opacity: 0;
+  z-index: 2;
+}
+
+.hidden {
+  transform: translateY(100%);
+  opacity: 0;
+  z-index: 1;
+}
+
+.cardBg {
+  position: absolute;
+  inset: 0;
+}
+
+.cardVignette {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0, 0, 0, 0.2) 0%, rgba(0, 0, 0, 0) 35%, rgba(0, 0, 0, 0.65) 72%, rgba(0, 0, 0, 0.9) 100%);
+}
+
+.cardBody {
+  position: relative;
+  padding: 0 22px 36px;
+  padding-right: 84px;
+  z-index: 4;
+}
+
+.categoryTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0.5px solid var(--border2);
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--muted);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px 4px 8px;
+  border-radius: 20px;
+  margin-bottom: 18px;
+}
+
+.categoryDot,
+.tagDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+
+.quoteText {
+  font-family: var(--font-serif), serif;
+  font-size: clamp(21px, 5.2vw, 27px);
+  line-height: 1.4;
+  margin-bottom: 20px;
+}
+
+.quoteAuthor {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.authorAvatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  font-weight: 500;
+  border: 0.5px solid var(--border2);
+}
+
+.authorName {
+  font-size: 13px;
+  font-weight: 500;
+  color: rgba(240, 236, 228, 0.8);
+}
+
+.authorRole {
+  font-size: 11px;
+  color: var(--hint);
+}
+
+.actionRail {
+  position: absolute;
+  right: 14px;
+  bottom: calc(var(--nav-h) + 28px);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.actionBtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  background: transparent;
+  border: 0;
+  color: inherit;
+  cursor: pointer;
+  padding: 6px;
+  border-radius: 14px;
+}
+
+.actionIcon {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 0.5px solid var(--border2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.actionIcon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.actionIcon svg path,
+.actionIcon svg circle {
+  stroke: rgba(240, 236, 228, 0.65);
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.actionLabel {
+  font-size: 11px;
+  color: var(--muted);
+}
+
+.liked .actionIcon {
+  background: rgba(255, 69, 96, 0.13);
+  border-color: var(--red);
+}
+
+.liked .actionIcon svg path {
+  stroke: var(--red);
+}
+
+.liked .actionLabel {
+  color: var(--red);
+}
+
+.disliked .actionIcon {
+  background: rgba(79, 158, 255, 0.13);
+  border-color: var(--blue);
+}
+
+.disliked .actionIcon svg path {
+  stroke: var(--blue);
+}
+
+.disliked .actionLabel {
+  color: var(--blue);
+}
+
+.saved .actionIcon {
+  background: rgba(245, 200, 66, 0.12);
+  border-color: var(--gold);
+}
+
+.saved .actionIcon svg path {
+  stroke: var(--gold);
+}
+
+.saved .actionLabel {
+  color: var(--gold);
+}
+
+.streakPill {
+  position: absolute;
+  top: 16px;
+  left: 16px;
+  z-index: 20;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: rgba(0, 0, 0, 0.5);
+  border: 0.5px solid rgba(245, 200, 66, 0.35);
+  border-radius: 20px;
+  padding: 6px 12px 6px 8px;
+}
+
+.streakPill svg {
+  width: 16px;
+  height: 16px;
+}
+
+.streakCount {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--gold);
+}
+
+.streakLabel {
+  font-size: 11px;
+  color: rgba(245, 200, 66, 0.55);
+}
+
+.swipeIndicator {
+  position: absolute;
+  bottom: calc(var(--nav-h) + 10px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%,
+  100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  50% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+.swipeIndicator span {
+  font-size: 9px;
+  color: var(--muted);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.toast {
+  position: absolute;
+  top: 62px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 100;
+  background: rgba(18, 18, 18, 0.94);
+  border: 0.5px solid var(--border2);
+  border-radius: 24px;
+  padding: 9px 18px;
+  font-size: 12px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.toastVisible {
+  opacity: 1;
+}
+
+.navbar {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--nav-h);
+  background: rgba(8, 8, 8, 0.96);
+  border-top: 0.5px solid var(--border);
+  z-index: 50;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  padding-top: 10px;
+}
+
+.navItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+}
+
+.navItem svg {
+  width: 22px;
+  height: 22px;
+}
+
+.navItem svg path,
+.navItem svg circle {
+  stroke: var(--hint);
+  stroke-width: 1.6;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.navLabel {
+  font-size: 10px;
+  color: var(--hint);
+}
+
+.navActive .navLabel,
+.navActive svg path,
+.navActive svg circle {
+  color: var(--text);
+  stroke: var(--text);
+}
+
+.page {
+  position: absolute;
+  inset: 0;
+  bottom: var(--nav-h);
+  background: var(--black);
+  z-index: 40;
+  overflow-y: auto;
+}
+
+.pageHeader {
+  padding: 20px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.pageTitle {
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.searchWrap {
+  margin: 14px 16px 0;
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: 14px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 11px 14px;
+}
+
+.searchWrap input {
+  background: transparent;
+  border: 0;
+  color: var(--text);
+  flex: 1;
+  outline: none;
+  font-size: 14px;
+}
+
+.sectionWrap {
+  padding: 20px 16px 12px;
+}
+
+.sectionLabel {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--hint);
+  margin-bottom: 12px;
+}
+
+.tagGrid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.tag {
+  border: 0.5px solid var(--border2);
+  background: var(--surface);
+  color: var(--muted);
+  font-size: 12px;
+  padding: 7px 14px;
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tagActive {
+  background: var(--surface2);
+  border-color: rgba(255, 255, 255, 0.25);
+  color: var(--text);
+}
+
+.trendingList {
+  padding: 0 16px 24px;
+}
+
+.trendItem {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 0;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.trendRank {
+  width: 18px;
+  color: var(--hint);
+}
+
+.trendName {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.trendCount {
+  font-size: 11px;
+  color: var(--hint);
+}
+
+.bookmarkList {
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.bookmarkCard {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-left-width: 3px;
+  border-radius: 16px;
+  padding: 16px;
+}
+
+.bookmarkCategory {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--hint);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bookmarkQuote {
+  font-family: var(--font-serif), serif;
+  font-size: 15px;
+  line-height: 1.5;
+  margin-bottom: 10px;
+}
+
+.bookmarkAuthor {
+  font-size: 11px;
+  color: var(--hint);
+}
+
+.bookmarkFooter {
+  display: flex;
+  justify-content: space-between;
+}
+
+.accountHero {
+  padding: 24px 20px 22px;
+  border-bottom: 0.5px solid var(--border);
+}
+
+.accountTop {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+.avatar {
+  width: 64px;
+  height: 64px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #4f46e5, #7c3aed);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.accountName {
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.accountAddress {
+  font-size: 10px;
+  color: var(--hint);
+}
+
+.streakCard {
+  background: rgba(245, 200, 66, 0.07);
+  border: 0.5px solid rgba(245, 200, 66, 0.18);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.streakCardLabel,
+.streakBestLabel {
+  font-size: 11px;
+  color: rgba(245, 200, 66, 0.5);
+}
+
+.streakCardValue {
+  font-size: 28px;
+  color: var(--gold);
+  line-height: 1;
+}
+
+.streakCardSub {
+  font-size: 11px;
+  color: rgba(245, 200, 66, 0.4);
+}
+
+.streakBest {
+  text-align: right;
+}
+
+.streakBestValue {
+  font-size: 18px;
+  color: rgba(245, 200, 66, 0.45);
+}
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  padding: 20px;
+}
+
+.statTile {
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: 14px;
+  padding: 14px 12px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 22px;
+  font-weight: 600;
+}
+
+.statLabel {
+  font-size: 10px;
+  color: var(--hint);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
