@@ -95,6 +95,21 @@ export function useQuoteBank() {
         return;
       }
 
+      const listedIds = (listedIdsRead.data ?? []) as readonly bigint[];
+
+      if (listedCount === 0) {
+        if (!cancelled) {
+          setQuotes([]);
+          setError("No quotes listed on-chain yet");
+          setIsLoading(false);
+        }
+        return;
+      }
+
+      if (listedIds.length === 0) {
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError("");
