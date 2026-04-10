@@ -1,9 +1,13 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import { usePublicClient, useReadContract } from "wagmi";
 import type { Quote } from "@/components/motivation-tok/data";
-
-const QUOTE_BANK_PATH = "/data/quote-bank.json";
+import {
+  CELO_SEPOLIA_CHAIN_ID,
+  motivationTokAbi,
+  motivationTokAddress,
+} from "@/lib/contracts";
 
 export function useQuoteBank() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
