@@ -20,6 +20,23 @@ async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit, ti
   }
 }
 
+async function withTimeout<T>(promise: Promise<T>, timeoutMs: number, timeoutMessage: string): Promise<T> {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+
+  try {
+    return await Promise.race([
+      promise,
+      new Promise<T>((_, reject) => {
+        timer = setTimeout(() => reject(new Error(timeoutMessage)), timeoutMs);
+      }),
+    ]);
+  } finally {
+    if (timer) {
+      clearTimeout(timer);
+    }
+  }
+}
+
 function toGatewayURI(uri: string) {
   if (uri.startsWith("ipfs://")) {
     return `https://ipfs.io/ipfs/${uri.replace("ipfs://", "")}`;
@@ -170,23 +187,31 @@ export function useQuoteBank() {
         }
 
         const listedCount = Number(
-          (await publicClient.readContract({
-            address: motivationTokAddress!,
-            abi: motivationTokAbi,
-            functionName: "getListedQuoteCount",
-          })) as bigint,
+          (await withTimeout(
+            publicClient.readContract({
+              address: motivationTokAddress!,
+              abi: motivationTokAbi,
+              functionName: "getListedQuoteCount",
+            }),
+            8000,
+            "Timed out reading listed quote count.",
+          )) as bigint,
         );
 
         if (listedCount <= 0) {
           throw new Error("No quotes listed on-chain yet.");
         }
 
-        const listedIds = (await publicClient.readContract({
-          address: motivationTokAddress!,
-          abi: motivationTokAbi,
-          functionName: "getListedQuoteIds",
-          args: [0n, BigInt(listedCount)],
-        })) as readonly bigint[];
+        const listedIds = (await withTimeout(
+          publicClient.readContract({
+            address: motivationTokAddress!,
+            abi: motivationTokAbi,
+            functionName: "getListedQuoteIds",
+            args: [0n, BigInt(listedCount)],
+          }),
+          8000,
+          "Timed out reading listed quote IDs.",
+        )) as readonly bigint[];
 
         if (listedIds.length === 0) {
           throw new Error("Could not load listed quote IDs from chain.");
@@ -195,12 +220,16 @@ export function useQuoteBank() {
         const quoteEntries = await Promise.allSettled(
           listedIds.map(async (quoteIdBigInt, order) => {
             const quoteId = Number(quoteIdBigInt);
-            const [listed, contentURI] = (await publicClient.readContract({
-              address: motivationTokAddress!,
-              abi: motivationTokAbi,
-              functionName: "getQuoteMeta",
-              args: [quoteIdBigInt],
-            })) as readonly [boolean, string, bigint];
+            const [listed, contentURI] = (await withTimeout(
+              publicClient.readContract({
+                address: motivationTokAddress!,
+                abi: motivationTokAbi,
+                functionName: "getQuoteMeta",
+                args: [quoteIdBigInt],
+              }),
+              6000,
+              `Timed out reading quote meta for ${quoteId}.`,
+            )) as readonly [boolean, string, bigint];
 
             if (!listed || !contentURI) {
               return null;
