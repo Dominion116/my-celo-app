@@ -403,14 +403,20 @@
 }
 
 .searchWrap {
-  margin: 14px 16px 0;
+  margin: 12px 16px 0;
   background: var(--surface);
   border: 0.5px solid var(--border2);
-  border-radius: 14px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 11px 14px;
+  gap: 8px;
+  padding: 9px 12px;
+}
+
+.searchWrap svg {
+  width: 18px;
+  height: 18px;
+  flex-shrink: 0;
 }
 
 .searchWrap input {
@@ -419,11 +425,11 @@
   color: var(--text);
   flex: 1;
   outline: none;
-  font-size: 14px;
+  font-size: 13px;
 }
 
 .sectionWrap {
-  padding: 20px 16px 12px;
+  padding: 16px 16px 10px;
 }
 
 .sectionLabel {
@@ -459,14 +465,14 @@
 }
 
 .trendingList {
-  padding: 0 16px 24px;
+  padding: 0 16px 20px;
 }
 
 .trendItem {
   display: flex;
   align-items: center;
-  gap: 14px;
-  padding: 14px 0;
+  gap: 12px;
+  padding: 12px 0;
   border-bottom: 0.5px solid var(--border);
 }
 
