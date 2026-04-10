@@ -428,6 +428,10 @@
   font-size: 13px;
 }
 
+.searchResults {
+  padding-bottom: 16px;
+}
+
 .sectionWrap {
   padding: 16px 16px 10px;
 }
@@ -539,6 +543,62 @@
   font-size: 13px;
   text-align: center;
   padding: 14px 10px;
+}
+
+.searchResultList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.searchResultCard {
+  border: 0.5px solid var(--border);
+  background: var(--surface);
+  border-radius: 14px;
+  padding: 12px 13px;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.searchResultTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+}
+
+.searchResultCategory {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border: 0.5px solid var(--border2);
+  border-radius: 999px;
+  padding: 4px 8px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  color: var(--muted);
+}
+
+.searchResultMeta {
+  font-size: 10px;
+  color: var(--hint);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.searchResultQuote {
+  font-family: var(--font-serif), serif;
+  font-size: 14px;
+  line-height: 1.45;
+  margin-bottom: 8px;
+}
+
+.searchResultAuthor {
+  font-size: 11px;
+  color: var(--hint);
 }
 
 .accountHero {
