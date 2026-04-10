@@ -176,7 +176,7 @@ export function useQuoteBank() {
     return () => {
       cancelled = true;
     };
-  }, []);
+  }, [contractReady, listedCount, listedIdsRead.data, publicClient]);
 
   const quotesById = useMemo(() => {
     const map = new Map<number, Quote>();
