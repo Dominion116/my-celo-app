@@ -87,7 +87,7 @@ export function useMotivationTok(currentQuoteId?: number) {
             data: encodeFunctionData({
               abi: motivationTokAbi,
               functionName: "toggleLike",
-              args: [actionQuoteId],
+              args: [actionQuoteId!],
             }),
           } as any);
         } else if (type === "dislike") {
@@ -96,7 +96,7 @@ export function useMotivationTok(currentQuoteId?: number) {
             data: encodeFunctionData({
               abi: motivationTokAbi,
               functionName: "toggleDislike",
-              args: [actionQuoteId],
+              args: [actionQuoteId!],
             }),
           } as any);
         } else if (type === "save") {
@@ -105,7 +105,7 @@ export function useMotivationTok(currentQuoteId?: number) {
             data: encodeFunctionData({
               abi: motivationTokAbi,
               functionName: "toggleSave",
-              args: [actionQuoteId],
+              args: [actionQuoteId!],
             }),
           } as any);
         } else {
@@ -114,18 +114,17 @@ export function useMotivationTok(currentQuoteId?: number) {
             data: encodeFunctionData({
               abi: motivationTokAbi,
               functionName: "recordShare",
-              args: [actionQuoteId],
+              args: [actionQuoteId!],
             }),
           } as any);
         }
 
-        await publicClient.waitForTransactionReceipt({ hash });
         await refreshReads();
       } finally {
         setIsPending(false);
       }
     },
-    [currentIndex, isConnected, publicClient, refreshReads, walletClient],
+    [currentQuoteId, isConnected, publicClient, refreshReads, walletClient],
   );
 
   const counters = countersRead.data ?? [0n, 0n, 0n, 0n, 0n];
