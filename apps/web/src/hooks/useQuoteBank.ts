@@ -157,11 +157,15 @@ export function useQuoteBank() {
         setIsLoading(true);
       }
 
+      await loadLocalQuoteBank("Loading local quote bank.");
+
       try {
         setError("");
 
         if (!contractReady || !publicClient) {
-          await loadLocalQuoteBank("On-chain contract is not configured.");
+          if (!cancelled) {
+            setError("On-chain contract is not configured. Showing local quote bank.");
+          }
           return;
         }
 
