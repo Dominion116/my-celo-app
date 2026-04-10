@@ -17,6 +17,46 @@ function toGatewayURI(uri: string) {
   return uri;
 }
 
+function normalizeQuote(data: unknown, fallbackId: number): Quote | null {
+  if (!data || typeof data !== "object") {
+    return null;
+  }
+
+  const record = data as Record<string, unknown>;
+  const id = Number(record.id ?? fallbackId);
+  const text = typeof record.text === "string" ? record.text : "";
+  const author = typeof record.author === "string" ? record.author : "Unknown";
+
+  if (!text) {
+    return null;
+  }
+
+  return {
+    id,
+    text,
+    author,
+    role: typeof record.role === "string" ? record.role : "Motivation Contributor",
+    category: typeof record.category === "string" ? record.category : "Mindset",
+    categoryColor: typeof record.categoryColor === "string" ? record.categoryColor : "#a78bfa",
+    background:
+      typeof record.background === "string"
+        ? record.background
+        : "linear-gradient(155deg,#0f0a1f 0%,#1a1030 55%,#080808 100%)",
+    avatar: typeof record.avatar === "string" ? record.avatar : author.slice(0, 2).toUpperCase(),
+    avatarImage:
+      typeof record.avatarImage === "string"
+        ? record.avatarImage
+        : `https://i.pravatar.cc/80?img=${(id % 70) + 1}`,
+    avatarBackground:
+      typeof record.avatarBackground === "string"
+        ? record.avatarBackground
+        : "linear-gradient(135deg,#7c3aed,#4f46e5)",
+    likes: Number(record.likes ?? 0),
+    dislikes: Number(record.dislikes ?? 0),
+    saves: Number(record.saves ?? 0),
+  };
+}
+
 export function useQuoteBank() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
