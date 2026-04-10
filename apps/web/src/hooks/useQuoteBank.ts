@@ -277,7 +277,12 @@ export function useQuoteBank() {
           setIsLoading(false);
         }
       } catch (err) {
-        await loadLocalQuoteBank(err instanceof Error ? err.message : "Unable to load on-chain quote bank.");
+        if (!cancelled) {
+          setError(
+            `${err instanceof Error ? err.message : "Unable to load on-chain quote bank."} Showing local quote bank.`,
+          );
+          setIsLoading(false);
+        }
       }
     }
 
