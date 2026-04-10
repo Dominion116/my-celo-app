@@ -28,11 +28,3 @@ export const CATEGORIES = [
   { name: "Purpose", color: "#e879f9" },
   { name: "Focus", color: "#2dd4bf" },
 ];
-
-export const TRENDING_AUTHORS = [
-  "Marcus Aurelius",
-  "Maya Angelou",
-  "Nelson Mandela",
-  "Rumi",
-  "Viktor Frankl",
-];

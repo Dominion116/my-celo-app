@@ -25,6 +25,7 @@ function formatCount(value: number) {
 export function MotivationTokApp() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeTab, setActiveTab] = useState<TabKey>("home");
+  const [searchQuery, setSearchQuery] = useState("");
   const [toastMessage, setToastMessage] = useState("");
   const [hintHidden, setHintHidden] = useState(false);
   const [activeCategory, setActiveCategory] = useState("All");
@@ -82,6 +83,15 @@ export function MotivationTokApp() {
 
     setCurrentIndex(next);
     setHintHidden(true);
+  };
+
+  const openQuote = (quoteId: number) => {
+    const nextIndex = quotes.findIndex((quote) => quote.id === quoteId);
+    if (nextIndex >= 0) {
+      setCurrentIndex(nextIndex);
+      setActiveTab("home");
+      setHintHidden(true);
+    }
   };
 
   useEffect(() => {
@@ -197,7 +207,16 @@ export function MotivationTokApp() {
         </>
       )}
 
-      {activeTab === "search" && <SearchPage activeCategory={activeCategory} onCategoryChange={setActiveCategory} />}
+      {activeTab === "search" && (
+        <SearchPage
+          activeCategory={activeCategory}
+          searchQuery={searchQuery}
+          quotes={quotes}
+          onCategoryChange={setActiveCategory}
+          onSearchChange={setSearchQuery}
+          onQuoteSelect={openQuote}
+        />
+      )}
       {activeTab === "bookmarks" && (
         <BookmarksPage savedQuoteIds={savedQuoteIds} quotesById={quotesById} isLoading={quoteBankLoading} />
       )}
