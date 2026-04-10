@@ -13,6 +13,7 @@
     "deploy:motivationtok": "hardhat ignition deploy ignition/modules/MotivationTok.ts",
     "deploy:motivationtok:celo-sepolia": "hardhat ignition deploy ignition/modules/MotivationTok.ts --network celo-sepolia",
     "deploy:motivationtok:celo": "hardhat ignition deploy ignition/modules/MotivationTok.ts --network celo",
+    "seed:quotes:celo-sepolia": "hardhat run scripts/seed-quote-bank.ts --network celo-sepolia",
     "verify": "hardhat verify",
     "clean": "hardhat clean",
     "typechain": "hardhat typechain"

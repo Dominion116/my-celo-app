@@ -6,12 +6,13 @@ import { ActionRail } from "./ActionRail";
 import { BottomNav } from "./BottomNav";
 import { QuoteCard } from "./QuoteCard";
 import { StreakPill } from "./StreakPill";
-import { QUOTES, type TabKey } from "./data";
+import { type TabKey } from "./data";
 import { SearchPage } from "./pages/SearchPage";
 import { BookmarksPage } from "./pages/BookmarksPage";
 import { AccountPage } from "./pages/AccountPage";
 import styles from "./styles.module.css";
 import { useMotivationTok } from "@/hooks/useMotivationTok";
+import { useQuoteBank } from "@/hooks/useQuoteBank";
 import { truncateAddress } from "@/lib/app-utils";
 
 const dmSans = DM_Sans({ subsets: ["latin"], variable: "--font-ui" });
@@ -29,6 +30,7 @@ export function MotivationTokApp() {
   const [activeCategory, setActiveCategory] = useState("All");
   const hasRecordedVisit = useRef(false);
   const touchStartY = useRef(0);
+  const { quotes, quoteCount, quotesById, isLoading: quoteBankLoading, error: quoteBankError } = useQuoteBank();
   const {
     contractReady,
     isConnected,
@@ -46,7 +48,17 @@ export function MotivationTokApp() {
     writeAction,
   } = useMotivationTok(currentIndex);
 
-  const currentQuote = QUOTES[currentIndex];
+  const currentQuote = quotes[currentIndex];
+
+  const feedIndices = useMemo(() => {
+    if (quoteCount === 0) {
+      return [];
+    }
+
+    const start = Math.max(0, currentIndex - 1);
+    const end = Math.min(quoteCount - 1, currentIndex + 1);
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
+  }, [currentIndex, quoteCount]);
 
   const counts = useMemo(
     () => ({
@@ -63,13 +75,19 @@ export function MotivationTokApp() {
   };
 
   const goTo = (next: number) => {
-    if (next < 0 || next >= QUOTES.length) {
+    if (next < 0 || next >= quoteCount) {
       return;
     }
 
     setCurrentIndex(next);
     setHintHidden(true);
   };
+
+  useEffect(() => {
+    if (quoteCount > 0 && currentIndex >= quoteCount) {
+      setCurrentIndex(0);
+    }
+  }, [currentIndex, quoteCount]);
 
   useEffect(() => {
     if (!contractReady || !isConnected || hasRecordedVisit.current) {
@@ -94,7 +112,7 @@ export function MotivationTokApp() {
     }
 
     try {
-      if (type === "share") {
+      if (type === "share" && currentQuote) {
         await navigator.clipboard.writeText(currentQuote.text);
       }
 
@@ -130,7 +148,17 @@ export function MotivationTokApp() {
           }
         }}
       >
-        {QUOTES.map((quote, index) => {
+        {quoteBankLoading && <div className={styles.feedState}>Loading quote bank...</div>}
+        {!quoteBankLoading && quoteCount === 0 && (
+          <div className={styles.feedState}>{quoteBankError || "No quotes available yet."}</div>
+        )}
+
+        {feedIndices.map((index) => {
+          const quote = quotes[index];
+          if (!quote) {
+            return null;
+          }
+
           let state: "active" | "above" | "below" | "hidden" = "hidden";
           if (index === currentIndex) {
             state = "active";
@@ -140,11 +168,11 @@ export function MotivationTokApp() {
             state = "below";
           }
 
-          return <QuoteCard key={`${quote.author}-${quote.text}`} quote={quote} state={state} />;
+          return <QuoteCard key={quote.id} quote={quote} state={state} />;
         })}
       </div>
 
-      {activeTab === "home" && (
+      {activeTab === "home" && currentQuote && (
         <>
           <ActionRail
             likes={counts.likes}
@@ -169,7 +197,9 @@ export function MotivationTokApp() {
       )}
 
       {activeTab === "search" && <SearchPage activeCategory={activeCategory} onCategoryChange={setActiveCategory} />}
-      {activeTab === "bookmarks" && <BookmarksPage savedQuoteIds={savedQuoteIds} />}
+      {activeTab === "bookmarks" && (
+        <BookmarksPage savedQuoteIds={savedQuoteIds} quotesById={quotesById} isLoading={quoteBankLoading} />
+      )}
       {activeTab === "account" && (
         <AccountPage
           streak={Math.max(streak, 1)}
