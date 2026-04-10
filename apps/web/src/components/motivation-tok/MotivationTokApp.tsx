@@ -31,6 +31,7 @@ export function MotivationTokApp() {
   const hasRecordedVisit = useRef(false);
   const touchStartY = useRef(0);
   const { quotes, quoteCount, quotesById, isLoading: quoteBankLoading, error: quoteBankError } = useQuoteBank();
+  const currentQuoteId = quotes[currentIndex]?.id;
   const {
     contractReady,
     isConnected,
@@ -46,7 +47,7 @@ export function MotivationTokApp() {
     bestStreak,
     savedQuoteIds,
     writeAction,
-  } = useMotivationTok(currentIndex);
+  } = useMotivationTok(currentQuoteId);
 
   const currentQuote = quotes[currentIndex];
 
