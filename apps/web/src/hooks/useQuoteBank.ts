@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePublicClient } from "wagmi";
+import { useAccount, usePublicClient } from "wagmi";
 import type { Quote } from "@/components/motivation-tok/data";
 import {
   CELO_SEPOLIA_CHAIN_ID,
@@ -56,13 +56,63 @@ function normalizeQuote(data: unknown, fallbackId: number): Quote | null {
   };
 }
 
+function hashSeed(input: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i++) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+
+  return hash >>> 0;
+}
+
+function createRng(seed: number) {
+  let value = seed || 1;
+  return () => {
+    value = (value * 1664525 + 1013904223) >>> 0;
+    return value / 4294967296;
+  };
+}
+
+function shuffleBySeed(items: Quote[], seedInput: string): Quote[] {
+  const rng = createRng(hashSeed(seedInput));
+  const shuffled = [...items];
+
+  for (let i = shuffled.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+  }
+
+  return shuffled;
+}
+
 export function useQuoteBank() {
+  const { address } = useAccount();
   const publicClient = usePublicClient({ chainId: CELO_SEPOLIA_CHAIN_ID });
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>("");
+  const [guestSeed, setGuestSeed] = useState("guest");
 
   const contractReady = Boolean(motivationTokAddress && publicClient);
+
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    const storageKey = "motivationtok:guest-seed";
+    const existing = window.localStorage.getItem(storageKey);
+
+    if (existing) {
+      setGuestSeed(existing);
+      return;
+    }
+
+    const nextSeed = window.crypto?.randomUUID?.() ?? `${Date.now()}-${Math.random()}`;
+    window.localStorage.setItem(storageKey, nextSeed);
+    setGuestSeed(nextSeed);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -186,17 +236,26 @@ export function useQuoteBank() {
     };
   }, [contractReady, publicClient]);
 
+  const seededQuotes = useMemo(() => {
+    if (quotes.length === 0) {
+      return quotes;
+    }
+
+    const identitySeed = address ? address.toLowerCase() : `guest:${guestSeed}`;
+    return shuffleBySeed(quotes, identitySeed);
+  }, [address, guestSeed, quotes]);
+
   const quotesById = useMemo(() => {
     const map = new Map<number, Quote>();
-    for (const quote of quotes) {
+    for (const quote of seededQuotes) {
       map.set(quote.id, quote);
     }
     return map;
-  }, [quotes]);
+  }, [seededQuotes]);
 
   return {
-    quotes,
-    quoteCount: quotes.length,
+    quotes: seededQuotes,
+    quoteCount: seededQuotes.length,
     quotesById,
     isLoading,
     error,
