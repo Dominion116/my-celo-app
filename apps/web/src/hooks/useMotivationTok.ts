@@ -3,22 +3,17 @@
 import { useCallback, useState } from "react";
 import { useAccount, usePublicClient, useReadContract, useWalletClient } from "wagmi";
 import { encodeFunctionData } from "viem";
-import {
-  CELO_SEPOLIA_CHAIN_ID,
-  motivationTokAbi,
-  motivationTokAddress,
-  quoteIdFromIndex,
-} from "@/lib/contracts";
+import { CELO_SEPOLIA_CHAIN_ID, motivationTokAbi, motivationTokAddress } from "@/lib/contracts";
 
 type ActionType = "like" | "dislike" | "save" | "share" | "visit";
 
-export function useMotivationTok(currentIndex: number) {
+export function useMotivationTok(currentQuoteId?: number) {
   const { address, isConnected } = useAccount();
   const publicClient = usePublicClient({ chainId: CELO_SEPOLIA_CHAIN_ID });
   const { data: walletClient } = useWalletClient({ chainId: CELO_SEPOLIA_CHAIN_ID });
   const [isPending, setIsPending] = useState(false);
 
-  const quoteId = quoteIdFromIndex(currentIndex);
+  const quoteId = currentQuoteId !== undefined ? BigInt(currentQuoteId) : undefined;
   const canQueryUser = Boolean(address && motivationTokAddress);
 
   const countersRead = useReadContract({
