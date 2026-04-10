@@ -11,12 +11,12 @@ import {
 
 async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit, timeoutMs = 8000) {
   const controller = new AbortController();
-  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+  const timer = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     return await fetch(input, { ...init, signal: controller.signal });
   } finally {
-    window.clearTimeout(timer);
+    clearTimeout(timer);
   }
 }
 
@@ -157,13 +157,13 @@ export function useQuoteBank() {
         setIsLoading(true);
       }
 
-      if (!contractReady || !publicClient) {
-        await loadLocalQuoteBank("On-chain contract is not configured.");
-        return;
-      }
-
       try {
         setError("");
+
+        if (!contractReady || !publicClient) {
+          await loadLocalQuoteBank("On-chain contract is not configured.");
+          return;
+        }
 
         const listedCount = Number(
           (await publicClient.readContract({
