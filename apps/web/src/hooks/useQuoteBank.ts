@@ -9,6 +9,17 @@ import {
   motivationTokAddress,
 } from "@/lib/contracts";
 
+async function fetchWithTimeout(input: RequestInfo | URL, init?: RequestInit, timeoutMs = 8000) {
+  const controller = new AbortController();
+  const timer = window.setTimeout(() => controller.abort(), timeoutMs);
+
+  try {
+    return await fetch(input, { ...init, signal: controller.signal });
+  } finally {
+    window.clearTimeout(timer);
+  }
+}
+
 function toGatewayURI(uri: string) {
   if (uri.startsWith("ipfs://")) {
     return `https://ipfs.io/ipfs/${uri.replace("ipfs://", "")}`;
@@ -119,7 +130,7 @@ export function useQuoteBank() {
 
     async function loadLocalQuoteBank(reason: string) {
       try {
-        const response = await fetch("/data/quote-bank.json");
+        const response = await fetchWithTimeout("/data/quote-bank.json", undefined, 5000);
         if (!response.ok) {
           throw new Error(`local quote bank fetch failed (${response.status})`);
         }
@@ -177,9 +188,7 @@ export function useQuoteBank() {
           throw new Error("Could not load listed quote IDs from chain.");
         }
 
-        const quotesWithOrder: Array<{ order: number; quote: Quote }> = [];
-
-        await Promise.all(
+        const quoteEntries = await Promise.allSettled(
           listedIds.map(async (quoteIdBigInt, order) => {
             const quoteId = Number(quoteIdBigInt);
             const [listed, contentURI] = (await publicClient.readContract({
@@ -190,12 +199,12 @@ export function useQuoteBank() {
             })) as readonly [boolean, string, bigint];
 
             if (!listed || !contentURI) {
-              return;
+              return null;
             }
 
-            const response = await fetch(toGatewayURI(contentURI));
+            const response = await fetchWithTimeout(toGatewayURI(contentURI), undefined, 6000);
             if (!response.ok) {
-              return;
+              return null;
             }
 
             const payload = (await response.json()) as unknown;
@@ -205,12 +214,22 @@ export function useQuoteBank() {
 
             const quote = normalizeQuote(content, quoteId);
             if (!quote) {
-              return;
+              return null;
             }
 
-            quotesWithOrder.push({ order, quote });
+            return { order, quote };
           }),
         );
+
+        const quotesWithOrder: Array<{ order: number; quote: Quote }> = quoteEntries
+          .filter(
+            (
+              result,
+            ): result is PromiseFulfilledResult<{ order: number; quote: Quote } | null> =>
+              result.status === "fulfilled",
+          )
+          .map((result) => result.value)
+          .filter((value): value is { order: number; quote: Quote } => value !== null);
 
         quotesWithOrder.sort((left, right) => left.order - right.order);
         const normalizedQuotes = quotesWithOrder.map((item) => item.quote);
