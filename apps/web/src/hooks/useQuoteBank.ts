@@ -9,6 +9,14 @@ import {
   motivationTokAddress,
 } from "@/lib/contracts";
 
+function toGatewayURI(uri: string) {
+  if (uri.startsWith("ipfs://")) {
+    return `https://ipfs.io/ipfs/${uri.replace("ipfs://", "")}`;
+  }
+
+  return uri;
+}
+
 export function useQuoteBank() {
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
