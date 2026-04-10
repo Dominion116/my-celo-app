@@ -72,6 +72,16 @@ export function useQuoteBank() {
     query: { enabled: contractReady },
   });
 
+  const listedCount = Number(listedCountRead.data ?? 0n);
+
+  const listedIdsRead = useReadContract({
+    address: motivationTokAddress,
+    abi: motivationTokAbi,
+    functionName: "getListedQuoteIds",
+    args: listedCount > 0 ? [0n, BigInt(listedCount)] : undefined,
+    query: { enabled: contractReady && listedCount > 0 },
+  });
+
   useEffect(() => {
     let cancelled = false;
 
