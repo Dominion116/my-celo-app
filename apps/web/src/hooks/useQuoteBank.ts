@@ -114,18 +114,54 @@ export function useQuoteBank() {
         setIsLoading(true);
         setError("");
 
-        const response = await fetch(QUOTE_BANK_PATH);
-        if (!response.ok) {
-          throw new Error(`Failed to load quote bank: ${response.status}`);
+        const quotesWithOrder: Array<{ order: number; quote: Quote }> = [];
+
+        await Promise.all(
+          listedIds.map(async (quoteIdBigInt, order) => {
+            const quoteId = Number(listedIds[order]);
+            const [listed, contentURI] = (await publicClient.readContract({
+              address: motivationTokAddress!,
+              abi: motivationTokAbi,
+              functionName: "getQuoteMeta",
+              args: [quoteIdBigInt],
+            })) as readonly [boolean, string, bigint];
+
+            if (!listed || !contentURI) {
+              return;
+            }
+
+            const response = await fetch(toGatewayURI(contentURI));
+            if (!response.ok) {
+              return;
+            }
+
+            const payload = (await response.json()) as unknown;
+            const content = Array.isArray(payload)
+              ? payload.find((item) => Number((item as { id?: number }).id) === quoteId)
+              : payload;
+
+            const quote = normalizeQuote(content, quoteId);
+            if (!quote) {
+              return;
+            }
+
+            quotesWithOrder.push({ order, quote });
+          }),
+        );
+
+        quotesWithOrder.sort((left, right) => left.order - right.order);
+        const normalizedQuotes = quotesWithOrder.map((item) => item.quote);
+
+        if (normalizedQuotes.length === 0) {
+          throw new Error("Listed quote URIs could not be resolved");
         }
 
-        const data = (await response.json()) as Quote[];
         if (!cancelled) {
-          setQuotes(data);
+          setQuotes(normalizedQuotes);
         }
       } catch (err) {
         if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Unable to load quote bank");
+          setError(err instanceof Error ? err.message : "Unable to load on-chain quote bank");
           setQuotes([]);
         }
       } finally {
