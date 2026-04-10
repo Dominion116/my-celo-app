@@ -58,9 +58,19 @@ function normalizeQuote(data: unknown, fallbackId: number): Quote | null {
 }
 
 export function useQuoteBank() {
+  const publicClient = usePublicClient({ chainId: CELO_SEPOLIA_CHAIN_ID });
   const [quotes, setQuotes] = useState<Quote[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string>("");
+
+  const contractReady = Boolean(motivationTokAddress && publicClient);
+
+  const listedCountRead = useReadContract({
+    address: motivationTokAddress,
+    abi: motivationTokAbi,
+    functionName: "getListedQuoteCount",
+    query: { enabled: contractReady },
+  });
 
   useEffect(() => {
     let cancelled = false;
