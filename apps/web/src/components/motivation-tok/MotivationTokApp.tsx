@@ -149,9 +149,9 @@ export function MotivationTokApp() {
           }
         }}
       >
-        {quoteBankLoading && <div className={styles.feedState}>Loading quote bank...</div>}
+        {quoteBankLoading && <div className={styles.feedState}>Loading on-chain quote bank...</div>}
         {!quoteBankLoading && quoteCount === 0 && (
-          <div className={styles.feedState}>{quoteBankError || "No quotes available yet."}</div>
+          <div className={styles.feedState}>{quoteBankError || "No on-chain quotes available yet."}</div>
         )}
 
         {feedIndices.map((index) => {
