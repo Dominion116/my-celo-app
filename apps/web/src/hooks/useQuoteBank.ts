@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
-import { usePublicClient, useReadContract } from "wagmi";
+import { usePublicClient } from "wagmi";
 import type { Quote } from "@/components/motivation-tok/data";
 import {
   CELO_SEPOLIA_CHAIN_ID,
@@ -13,7 +13,6 @@ function toGatewayURI(uri: string) {
   if (uri.startsWith("ipfs://")) {
     return `https://ipfs.io/ipfs/${uri.replace("ipfs://", "")}`;
   }
-
   return uri;
 }
 
@@ -65,60 +64,74 @@ export function useQuoteBank() {
 
   const contractReady = Boolean(motivationTokAddress && publicClient);
 
-  const listedCountRead = useReadContract({
-    address: motivationTokAddress,
-    abi: motivationTokAbi,
-    functionName: "getListedQuoteCount",
-    query: { enabled: contractReady },
-  });
-
-  const listedCount = Number(listedCountRead.data ?? 0n);
-
-  const listedIdsRead = useReadContract({
-    address: motivationTokAddress,
-    abi: motivationTokAbi,
-    functionName: "getListedQuoteIds",
-    args: listedCount > 0 ? [0n, BigInt(listedCount)] : undefined,
-    query: { enabled: contractReady && listedCount > 0 },
-  });
-
   useEffect(() => {
     let cancelled = false;
 
+    async function loadLocalQuoteBank(reason: string) {
+      try {
+        const response = await fetch("/data/quote-bank.json");
+        if (!response.ok) {
+          throw new Error(`local quote bank fetch failed (${response.status})`);
+        }
+
+        const data = (await response.json()) as Quote[];
+        if (!cancelled) {
+          setQuotes(data);
+          setError(`${reason} Falling back to local quote bank.`);
+        }
+      } catch {
+        if (!cancelled) {
+          setQuotes([]);
+          setError(`${reason} Local quote bank is also unavailable.`);
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLoading(false);
+        }
+      }
+    }
+
     async function loadQuoteBankFromChain() {
+      if (!cancelled) {
+        setIsLoading(true);
+      }
+
       if (!contractReady || !publicClient) {
-        if (!cancelled) {
-          setQuotes([]);
-          setError("Set NEXT_PUBLIC_MOTIVATIONTOK_CONTRACT to load on-chain quote bank");
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      const listedIds = (listedIdsRead.data ?? []) as readonly bigint[];
-
-      if (listedCount === 0) {
-        if (!cancelled) {
-          setQuotes([]);
-          setError("No quotes listed on-chain yet");
-          setIsLoading(false);
-        }
-        return;
-      }
-
-      if (listedIds.length === 0) {
+        await loadLocalQuoteBank("On-chain contract is not configured.");
         return;
       }
 
       try {
-        setIsLoading(true);
         setError("");
+
+        const listedCount = Number(
+          (await publicClient.readContract({
+            address: motivationTokAddress!,
+            abi: motivationTokAbi,
+            functionName: "getListedQuoteCount",
+          })) as bigint,
+        );
+
+        if (listedCount <= 0) {
+          throw new Error("No quotes listed on-chain yet.");
+        }
+
+        const listedIds = (await publicClient.readContract({
+          address: motivationTokAddress!,
+          abi: motivationTokAbi,
+          functionName: "getListedQuoteIds",
+          args: [0n, BigInt(listedCount)],
+        })) as readonly bigint[];
+
+        if (listedIds.length === 0) {
+          throw new Error("Could not load listed quote IDs from chain.");
+        }
 
         const quotesWithOrder: Array<{ order: number; quote: Quote }> = [];
 
         await Promise.all(
           listedIds.map(async (quoteIdBigInt, order) => {
-            const quoteId = Number(listedIds[order]);
+            const quoteId = Number(quoteIdBigInt);
             const [listed, contentURI] = (await publicClient.readContract({
               address: motivationTokAddress!,
               abi: motivationTokAbi,
@@ -153,21 +166,16 @@ export function useQuoteBank() {
         const normalizedQuotes = quotesWithOrder.map((item) => item.quote);
 
         if (normalizedQuotes.length === 0) {
-          throw new Error("Listed quote URIs could not be resolved");
+          throw new Error("Listed quote URIs could not be resolved.");
         }
 
         if (!cancelled) {
           setQuotes(normalizedQuotes);
-        }
-      } catch (err) {
-        if (!cancelled) {
-          setError(err instanceof Error ? err.message : "Unable to load on-chain quote bank");
-          setQuotes([]);
-        }
-      } finally {
-        if (!cancelled) {
+          setError("");
           setIsLoading(false);
         }
+      } catch (err) {
+        await loadLocalQuoteBank(err instanceof Error ? err.message : "Unable to load on-chain quote bank.");
       }
     }
 
@@ -176,7 +184,7 @@ export function useQuoteBank() {
     return () => {
       cancelled = true;
     };
-  }, [contractReady, listedCount, listedIdsRead.data, publicClient]);
+  }, [contractReady, publicClient]);
 
   const quotesById = useMemo(() => {
     const map = new Map<number, Quote>();
