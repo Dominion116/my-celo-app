@@ -85,7 +85,16 @@ export function useQuoteBank() {
   useEffect(() => {
     let cancelled = false;
 
-    async function loadQuoteBank() {
+    async function loadQuoteBankFromChain() {
+      if (!contractReady || !publicClient) {
+        if (!cancelled) {
+          setQuotes([]);
+          setError("Set NEXT_PUBLIC_MOTIVATIONTOK_CONTRACT to load on-chain quote bank");
+          setIsLoading(false);
+        }
+        return;
+      }
+
       try {
         setIsLoading(true);
         setError("");
@@ -111,7 +120,7 @@ export function useQuoteBank() {
       }
     }
 
-    loadQuoteBank();
+    loadQuoteBankFromChain();
 
     return () => {
       cancelled = true;
