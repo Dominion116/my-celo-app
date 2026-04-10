@@ -14,22 +14,23 @@ export function useMotivationTok(currentQuoteId?: number) {
   const [isPending, setIsPending] = useState(false);
 
   const quoteId = currentQuoteId !== undefined ? BigInt(currentQuoteId) : undefined;
+  const canQueryQuote = Boolean(quoteId && motivationTokAddress);
   const canQueryUser = Boolean(address && motivationTokAddress);
 
   const countersRead = useReadContract({
     address: motivationTokAddress,
     abi: motivationTokAbi,
     functionName: "getQuoteCounters",
-    args: [quoteId],
-    query: { enabled: Boolean(motivationTokAddress) },
+    args: canQueryQuote ? [quoteId!] : undefined,
+    query: { enabled: canQueryQuote },
   });
 
   const userStateRead = useReadContract({
     address: motivationTokAddress,
     abi: motivationTokAbi,
     functionName: "getUserQuoteState",
-    args: canQueryUser ? [address!, quoteId] : undefined,
-    query: { enabled: canQueryUser },
+    args: canQueryUser && canQueryQuote ? [address!, quoteId!] : undefined,
+    query: { enabled: canQueryUser && canQueryQuote },
   });
 
   const streakRead = useReadContract({
