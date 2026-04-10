@@ -7,7 +7,7 @@ type BottomNavProps = {
 };
 
 export function BottomNav({ activeTab, onTabChange }: BottomNavProps) {
-  const tabClass = (tab: TabKey) => `${styles.navItem} ${activeTab === tab ? styles.active : ""}`;
+  const tabClass = (tab: TabKey) => `${styles.navItem} ${activeTab === tab ? styles.navActive : ""}`;
 
   return (
     <nav className={styles.navbar}>
