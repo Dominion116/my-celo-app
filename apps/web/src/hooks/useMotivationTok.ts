@@ -59,12 +59,17 @@ export function useMotivationTok(currentQuoteId?: number) {
   }, [countersRead, savedIdsRead, streakRead, userStateRead]);
 
   const writeAction = useCallback(
-    async (type: ActionType, indexOverride?: number) => {
+    async (type: ActionType, quoteIdOverride?: number) => {
       if (!motivationTokAddress || !publicClient || !isConnected || !walletClient) {
         throw new Error("Wallet not connected or contract not configured");
       }
 
-      const actionQuoteId = quoteIdFromIndex(indexOverride ?? currentIndex);
+      const actionQuoteIdRaw = quoteIdOverride ?? currentQuoteId;
+      if (type !== "visit" && actionQuoteIdRaw === undefined) {
+        throw new Error("Quote ID unavailable");
+      }
+
+      const actionQuoteId = actionQuoteIdRaw !== undefined ? BigInt(actionQuoteIdRaw) : undefined;
       const sendTransaction: any = walletClient.sendTransaction;
       setIsPending(true);
 
